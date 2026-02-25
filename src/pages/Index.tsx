@@ -1,12 +1,21 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Header from "@/components/Header";
+import HeroBanner from "@/components/HeroBanner";
+import TrendingSection from "@/components/TrendingSection";
+import DealsGrid from "@/components/DealsGrid";
+import CategoryCards from "@/components/CategoryCards";
+import Footer from "@/components/Footer";
+import { trendingDeals, handpickedDeals, moreDeals } from "@/data/deals";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <HeroBanner />
+      <TrendingSection deals={trendingDeals} />
+      <DealsGrid title="Handpicked for You" deals={handpickedDeals} columns={2} />
+      <DealsGrid title="More Discoveries" deals={moreDeals} columns={3} />
+      <CategoryCards />
+      <Footer />
     </div>
   );
 };
