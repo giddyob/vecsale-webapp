@@ -2,15 +2,13 @@ import { useSearchParams, Link } from "react-router-dom";
 import { ArrowLeft, CreditCard, Lock } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { trendingDeals, handpickedDeals, moreDeals } from "@/data/deals";
+import { useDeal } from "@/hooks/useDeals";
 import { useState } from "react";
-
-const allDeals = [...trendingDeals, ...handpickedDeals, ...moreDeals];
 
 const Checkout = () => {
   const [searchParams] = useSearchParams();
   const dealId = searchParams.get("deal");
-  const deal = allDeals.find((d) => d.id === dealId);
+  const { data: deal, isLoading } = useDeal(dealId || undefined);
   const [submitted, setSubmitted] = useState(false);
 
   if (submitted) {
@@ -40,73 +38,75 @@ const Checkout = () => {
 
         <h1 className="text-2xl font-display font-bold text-foreground mb-6">Checkout</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-          {/* Form */}
-          <div className="md:col-span-3 space-y-6">
-            <div className="bg-card rounded-xl p-6" style={{ boxShadow: "var(--shadow-card)" }}>
-              <h2 className="font-display font-bold text-foreground mb-4">Contact Info</h2>
-              <div className="space-y-3">
-                <input placeholder="Full Name" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                <input placeholder="Email Address" type="email" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                <input placeholder="Phone Number" type="tel" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+        {isLoading ? (
+          <div className="py-20 text-center text-muted-foreground">Loading...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div className="md:col-span-3 space-y-6">
+              <div className="bg-card rounded-xl p-6" style={{ boxShadow: "var(--shadow-card)" }}>
+                <h2 className="font-display font-bold text-foreground mb-4">Contact Info</h2>
+                <div className="space-y-3">
+                  <input placeholder="Full Name" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                  <input placeholder="Email Address" type="email" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                  <input placeholder="Phone Number" type="tel" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                </div>
+              </div>
+
+              <div className="bg-card rounded-xl p-6" style={{ boxShadow: "var(--shadow-card)" }}>
+                <h2 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-accent" /> Payment
+                </h2>
+                <div className="space-y-3">
+                  <input placeholder="Card Number" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input placeholder="MM/YY" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                    <input placeholder="CVV" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="bg-card rounded-xl p-6" style={{ boxShadow: "var(--shadow-card)" }}>
-              <h2 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-accent" /> Payment
-              </h2>
-              <div className="space-y-3">
-                <input placeholder="Card Number" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                <div className="grid grid-cols-2 gap-3">
-                  <input placeholder="MM/YY" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                  <input placeholder="CVV" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                </div>
+            <div className="md:col-span-2">
+              <div className="bg-card rounded-xl p-6 sticky top-24" style={{ boxShadow: "var(--shadow-card)" }}>
+                <h2 className="font-display font-bold text-foreground mb-4">Order Summary</h2>
+                {deal ? (
+                  <div className="space-y-4">
+                    <div className="flex gap-3">
+                      <img src={deal.image} alt={deal.title} className="w-16 h-16 rounded-lg object-cover" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground line-clamp-2">{deal.title}</p>
+                        <p className="text-xs text-muted-foreground">{deal.merchant}</p>
+                      </div>
+                    </div>
+                    <div className="border-t border-border pt-3 space-y-2 text-sm">
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Subtotal</span><span>GH₵{deal.originalPrice}</span>
+                      </div>
+                      <div className="flex justify-between text-accent font-semibold">
+                        <span>Discount (-{deal.discount}%)</span><span>-GH₵{deal.originalPrice - deal.currentPrice}</span>
+                      </div>
+                      <div className="flex justify-between font-bold text-foreground text-base pt-2 border-t border-border">
+                        <span>Total</span><span>GH₵{deal.currentPrice}</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No items in checkout.</p>
+                )}
+
+                <button
+                  onClick={() => setSubmitted(true)}
+                  className="w-full mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  <Lock className="w-4 h-4" /> Place Order
+                </button>
+                <p className="text-xs text-center text-muted-foreground mt-3 flex items-center justify-center gap-1">
+                  <Lock className="w-3 h-3" /> Secure checkout
+                </p>
               </div>
             </div>
           </div>
-
-          {/* Summary */}
-          <div className="md:col-span-2">
-            <div className="bg-card rounded-xl p-6 sticky top-24" style={{ boxShadow: "var(--shadow-card)" }}>
-              <h2 className="font-display font-bold text-foreground mb-4">Order Summary</h2>
-              {deal ? (
-                <div className="space-y-4">
-                  <div className="flex gap-3">
-                    <img src={deal.image} alt={deal.title} className="w-16 h-16 rounded-lg object-cover" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground line-clamp-2">{deal.title}</p>
-                      <p className="text-xs text-muted-foreground">{deal.merchant}</p>
-                    </div>
-                  </div>
-                  <div className="border-t border-border pt-3 space-y-2 text-sm">
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Subtotal</span><span>GH₵{deal.originalPrice}</span>
-                    </div>
-                    <div className="flex justify-between text-accent font-semibold">
-                      <span>Discount (-{deal.discount}%)</span><span>-GH₵{deal.originalPrice - deal.currentPrice}</span>
-                    </div>
-                    <div className="flex justify-between font-bold text-foreground text-base pt-2 border-t border-border">
-                      <span>Total</span><span>GH₵{deal.currentPrice}</span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No items in checkout.</p>
-              )}
-
-              <button
-                onClick={() => setSubmitted(true)}
-                className="w-full mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity"
-              >
-                <Lock className="w-4 h-4" /> Place Order
-              </button>
-              <p className="text-xs text-center text-muted-foreground mt-3 flex items-center justify-center gap-1">
-                <Lock className="w-3 h-3" /> Secure checkout
-              </p>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
       <Footer />
     </div>

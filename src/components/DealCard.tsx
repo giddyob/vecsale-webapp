@@ -1,14 +1,27 @@
 import { Heart, Star, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Deal } from "@/data/deals";
+import type { DealWithBusiness } from "@/hooks/useDeals";
+import { useFavorites, useToggleFavorite } from "@/hooks/useFavorites";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DealCardProps {
-  deal: Deal;
+  deal: DealWithBusiness;
   variant?: "default" | "large";
 }
 
 const DealCard = ({ deal, variant = "default" }: DealCardProps) => {
   const isLarge = variant === "large";
+  const { user } = useAuth();
+  const { data: favIds = [] } = useFavorites();
+  const toggleFav = useToggleFavorite();
+  const isFav = favIds.includes(deal.id);
+
+  const handleFav = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) return;
+    toggleFav.mutate({ dealId: deal.id, isFavorited: isFav });
+  };
 
   return (
     <Link
@@ -16,7 +29,6 @@ const DealCard = ({ deal, variant = "default" }: DealCardProps) => {
       className="group block bg-card rounded-lg overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
       style={{ boxShadow: "var(--shadow-card)" }}
     >
-      {/* Image */}
       <div className={`relative overflow-hidden ${isLarge ? "h-56" : "h-44"}`}>
         <img
           src={deal.image}
@@ -24,12 +36,14 @@ const DealCard = ({ deal, variant = "default" }: DealCardProps) => {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
-        <button className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-card/80 backdrop-blur-sm text-muted-foreground hover:text-accent transition-colors">
-          <Heart className="w-4 h-4" />
+        <button
+          onClick={handleFav}
+          className={`absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-card/80 backdrop-blur-sm transition-colors ${isFav ? "text-accent" : "text-muted-foreground hover:text-accent"}`}
+        >
+          <Heart className={`w-4 h-4 ${isFav ? "fill-accent" : ""}`} />
         </button>
       </div>
 
-      {/* Content */}
       <div className="p-4">
         <div className="flex items-center gap-2 text-xs mb-1.5">
           <span className="font-semibold text-accent uppercase tracking-wide truncate">

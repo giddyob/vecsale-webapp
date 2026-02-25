@@ -3,14 +3,13 @@ import { ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DealCard from "@/components/DealCard";
-import { trendingDeals, handpickedDeals, moreDeals, categories } from "@/data/deals";
-
-const allDeals = [...trendingDeals, ...handpickedDeals, ...moreDeals];
+import { useDealsByCategory } from "@/hooks/useDeals";
+import { categories } from "@/data/deals";
 
 const Category = () => {
   const { name } = useParams();
   const decodedName = decodeURIComponent(name || "");
-  const deals = allDeals.filter((d) => d.category.toLowerCase() === decodedName.toLowerCase());
+  const { data: deals = [], isLoading } = useDealsByCategory(decodedName);
 
   return (
     <div className="min-h-screen bg-background">
@@ -26,7 +25,6 @@ const Category = () => {
           <p className="text-sm text-muted-foreground mt-2">{deals.length} deal{deals.length !== 1 ? "s" : ""} available</p>
         </div>
 
-        {/* Category pills */}
         <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-8 pb-1">
           {categories.map((cat) => (
             <Link
@@ -43,7 +41,9 @@ const Category = () => {
           ))}
         </div>
 
-        {deals.length > 0 ? (
+        {isLoading ? (
+          <div className="py-20 text-center text-muted-foreground">Loading deals...</div>
+        ) : deals.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {deals.map((deal) => <DealCard key={deal.id} deal={deal} />)}
           </div>

@@ -3,11 +3,34 @@ import { ArrowLeft, Heart } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DealCard from "@/components/DealCard";
-import { trendingDeals } from "@/data/deals";
-
-const mockFavourites = trendingDeals.slice(0, 4);
+import { useFavoriteDeals } from "@/hooks/useFavorites";
+import { useAuth } from "@/contexts/AuthContext";
+import type { DealWithBusiness } from "@/hooks/useDeals";
 
 const Favourites = () => {
+  const { user } = useAuth();
+  const { data: favData = [], isLoading } = useFavoriteDeals();
+
+  const deals: DealWithBusiness[] = favData
+    .filter((f: any) => f.deals)
+    .map((f: any) => {
+      const d = f.deals;
+      return {
+        id: d.id,
+        title: d.title,
+        image: d.image_url || "/placeholder.svg",
+        merchant: d.businesses?.name || "Local Merchant",
+        location: d.location || "",
+        rating: d.businesses?.rating || 4.5,
+        currentPrice: Number(d.discounted_price),
+        originalPrice: Number(d.original_price),
+        discount: d.discount_percentage,
+        category: d.category,
+        description: d.description,
+        businessId: d.business_id,
+      };
+    });
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -22,9 +45,17 @@ const Favourites = () => {
         </div>
         <div className="w-10 h-1 bg-accent rounded-full mb-6" />
 
-        {mockFavourites.length > 0 ? (
+        {!user ? (
+          <div className="py-20 text-center">
+            <Heart className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-lg text-muted-foreground">Sign in to save your favourites.</p>
+            <Link to="/auth" className="text-accent hover:underline text-sm mt-2 inline-block">Sign In</Link>
+          </div>
+        ) : isLoading ? (
+          <div className="py-20 text-center text-muted-foreground">Loading...</div>
+        ) : deals.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {mockFavourites.map((deal) => <DealCard key={deal.id} deal={deal} />)}
+            {deals.map((deal) => <DealCard key={deal.id} deal={deal} />)}
           </div>
         ) : (
           <div className="py-20 text-center">

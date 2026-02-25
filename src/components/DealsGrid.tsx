@@ -1,9 +1,9 @@
 import DealCard from "./DealCard";
-import type { Deal } from "@/data/deals";
+import type { DealWithBusiness } from "@/hooks/useDeals";
 
 interface DealsGridProps {
   title: string;
-  deals: Deal[];
+  deals: DealWithBusiness[];
   columns?: 2 | 3;
 }
 
