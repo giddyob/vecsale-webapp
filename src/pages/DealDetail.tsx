@@ -2,14 +2,31 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Heart, Star, MapPin, ShoppingCart, Share2, Shield } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { trendingDeals, handpickedDeals, moreDeals } from "@/data/deals";
 import DealCard from "@/components/DealCard";
-
-const allDeals = [...trendingDeals, ...handpickedDeals, ...moreDeals];
+import { useDeal, useDeals } from "@/hooks/useDeals";
+import { useFavorites, useToggleFavorite } from "@/hooks/useFavorites";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const DealDetail = () => {
   const { id } = useParams();
-  const deal = allDeals.find((d) => d.id === id);
+  const { data: deal, isLoading } = useDeal(id);
+  const { data: allDeals = [] } = useDeals();
+  const { data: favIds = [] } = useFavorites();
+  const toggleFav = useToggleFavorite();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const isFav = deal ? favIds.includes(deal.id) : false;
+
+  const handleFav = () => {
+    if (!user) { toast({ title: "Sign in to save favourites", variant: "destructive" }); return; }
+    if (deal) toggleFav.mutate({ dealId: deal.id, isFavorited: isFav });
+  };
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-background"><Header /><div className="container py-20 text-center text-muted-foreground">Loading...</div><Footer /></div>;
+  }
 
   if (!deal) {
     return (
@@ -35,7 +52,6 @@ const DealDetail = () => {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Image */}
           <div className="relative rounded-xl overflow-hidden aspect-[4/3]">
             <img src={deal.image} alt={deal.title} className="w-full h-full object-cover" />
             <span className="absolute top-4 left-4 text-sm font-bold bg-accent text-accent-foreground px-3 py-1 rounded-lg">
@@ -43,7 +59,6 @@ const DealDetail = () => {
             </span>
           </div>
 
-          {/* Info */}
           <div className="flex flex-col">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
               <span className="font-semibold text-accent uppercase tracking-wide">{deal.merchant}</span>
@@ -54,7 +69,7 @@ const DealDetail = () => {
             <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground mb-4">{deal.title}</h1>
 
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-              Enjoy an incredible experience with {deal.merchant}. This exclusive deal gives you {deal.discount}% off the regular price. Available at {deal.location}, rated {deal.rating} stars by our community.
+              {deal.description || `Enjoy an incredible experience with ${deal.merchant}. This exclusive deal gives you ${deal.discount}% off the regular price.`}
             </p>
 
             <div className="flex items-baseline gap-3 mb-6">
@@ -70,8 +85,8 @@ const DealDetail = () => {
               >
                 <ShoppingCart className="w-4 h-4" /> Buy Now
               </Link>
-              <button className="px-4 py-3 rounded-lg border border-border bg-card text-muted-foreground hover:text-accent transition-colors">
-                <Heart className="w-5 h-5" />
+              <button onClick={handleFav} className={`px-4 py-3 rounded-lg border border-border bg-card transition-colors ${isFav ? "text-accent" : "text-muted-foreground hover:text-accent"}`}>
+                <Heart className={`w-5 h-5 ${isFav ? "fill-accent" : ""}`} />
               </button>
               <button className="px-4 py-3 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground transition-colors">
                 <Share2 className="w-5 h-5" />
@@ -88,7 +103,6 @@ const DealDetail = () => {
           </div>
         </div>
 
-        {/* Related */}
         {related.length > 0 && (
           <div className="mt-14">
             <h2 className="text-xl font-display font-bold text-foreground mb-1">You Might Also Like</h2>

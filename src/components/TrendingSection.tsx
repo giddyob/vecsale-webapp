@@ -1,10 +1,10 @@
 import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import DealCard from "./DealCard";
-import type { Deal } from "@/data/deals";
+import type { DealWithBusiness } from "@/hooks/useDeals";
 
 interface TrendingSectionProps {
-  deals: Deal[];
+  deals: DealWithBusiness[];
 }
 
 const TrendingSection = ({ deals }: TrendingSectionProps) => {

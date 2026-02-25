@@ -1,24 +1,29 @@
-import { Search, Heart, ShoppingCart, User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, Heart, ShoppingCart, User, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { categories } from "@/data/deals";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <header className="sticky top-0 z-50">
-      {/* Top bar */}
       <div className="bg-nav">
         <div className="container flex items-center justify-between gap-6 py-3">
-          {/* Logo */}
           <a href="/" className="flex-shrink-0">
             <span className="text-2xl font-display font-extrabold text-nav-foreground">
               Vec<span className="text-accent">Sale</span>
             </span>
           </a>
 
-          {/* Search */}
           <div className="hidden md:flex flex-1 max-w-xl">
             <div className="flex w-full rounded-lg overflow-hidden bg-card">
               <div className="flex items-center pl-4 text-muted-foreground">
@@ -37,18 +42,26 @@ const Header = () => {
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-4">
-            <Link to="/my-stuff" className="hidden sm:flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
-              <span>My Stuff</span>
-            </Link>
+            {user && (
+              <Link to="/my-stuff" className="hidden sm:flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
+                <span>My Stuff</span>
+              </Link>
+            )}
             <Link to="/favourites" className="text-nav-foreground/80 hover:text-nav-foreground transition-colors">
               <Heart className="w-5 h-5" />
             </Link>
-            <Link to="/auth" className="flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
-              <User className="w-5 h-5" />
-              <span className="hidden sm:inline">Sign In</span>
-            </Link>
+            {user ? (
+              <button onClick={handleSignOut} className="flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
+                <LogOut className="w-5 h-5" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            ) : (
+              <Link to="/auth" className="flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
+                <User className="w-5 h-5" />
+                <span className="hidden sm:inline">Sign In</span>
+              </Link>
+            )}
             <Link to="/cart" className="text-nav-foreground/80 hover:text-nav-foreground transition-colors">
               <ShoppingCart className="w-5 h-5" />
             </Link>
@@ -56,7 +69,6 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Category nav */}
       <div className="bg-card border-b border-border">
         <div className="container">
           <nav className="flex items-center gap-1 overflow-x-auto py-2 scrollbar-hide">
