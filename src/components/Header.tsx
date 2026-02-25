@@ -1,4 +1,5 @@
 import { Search, Heart, ShoppingCart, User } from "lucide-react";
+import { Link } from "react-router-dom";
 import { categories } from "@/data/deals";
 import { useState } from "react";
 
@@ -38,19 +39,19 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
-            <button className="hidden sm:flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
+            <Link to="/my-stuff" className="hidden sm:flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
               <span>My Stuff</span>
-            </button>
-            <button className="text-nav-foreground/80 hover:text-nav-foreground transition-colors">
+            </Link>
+            <Link to="/favourites" className="text-nav-foreground/80 hover:text-nav-foreground transition-colors">
               <Heart className="w-5 h-5" />
-            </button>
-            <button className="flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
+            </Link>
+            <Link to="/auth" className="flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
               <User className="w-5 h-5" />
               <span className="hidden sm:inline">Sign In</span>
-            </button>
-            <button className="text-nav-foreground/80 hover:text-nav-foreground transition-colors">
+            </Link>
+            <Link to="/cart" className="text-nav-foreground/80 hover:text-nav-foreground transition-colors">
               <ShoppingCart className="w-5 h-5" />
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -60,13 +61,13 @@ const Header = () => {
         <div className="container">
           <nav className="flex items-center gap-1 overflow-x-auto py-2 scrollbar-hide">
             {categories.map((cat) => (
-              <a
+              <Link
                 key={cat}
-                href="#"
+                to={`/category/${encodeURIComponent(cat)}`}
                 className="flex-shrink-0 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
               >
                 {cat}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
