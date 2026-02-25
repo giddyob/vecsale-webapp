@@ -1,4 +1,5 @@
 import { Heart, Star, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Deal } from "@/data/deals";
 
 interface DealCardProps {
@@ -10,8 +11,9 @@ const DealCard = ({ deal, variant = "default" }: DealCardProps) => {
   const isLarge = variant === "large";
 
   return (
-    <div
-      className="group bg-card rounded-lg overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
+    <Link
+      to={`/deal/${deal.id}`}
+      className="group block bg-card rounded-lg overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
       style={{ boxShadow: "var(--shadow-card)" }}
     >
       {/* Image */}
@@ -59,7 +61,7 @@ const DealCard = ({ deal, variant = "default" }: DealCardProps) => {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
