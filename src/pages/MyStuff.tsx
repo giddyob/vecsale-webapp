@@ -3,17 +3,20 @@ import { ArrowLeft, Package, Clock, CheckCircle } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const statusConfig = {
   UNUSED: { label: "Active", icon: Package, color: "text-accent" },
-  USED: { label: "Completed", icon: CheckCircle, color: "text-accent" },
+  USED: { label: "Completed", icon: CheckCircle, color: "text-muted-foreground" },
   EXPIRED: { label: "Expired", icon: Clock, color: "text-muted-foreground" },
 };
 
 const MyStuff = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const { data: coupons = [], isLoading } = useQuery({
     queryKey: ["my-coupons", user?.id],
@@ -27,6 +30,21 @@ const MyStuff = () => {
       if (error) throw error;
       return data || [];
     },
+  });
+
+  const toggleStatus = useMutation({
+    mutationFn: async ({ id, newStatus }: { id: string; newStatus: string }) => {
+      const { error } = await supabase
+        .from("coupons")
+        .update({ status: newStatus })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-coupons"] });
+      toast.success("Coupon status updated");
+    },
+    onError: () => toast.error("Failed to update status"),
   });
 
   return (
@@ -60,6 +78,7 @@ const MyStuff = () => {
               const deal = coupon.deals;
               const st = (coupon.status || "UNUSED") as keyof typeof statusConfig;
               const { label, icon: Icon, color } = statusConfig[st] || statusConfig.UNUSED;
+              const nextStatus = st === "UNUSED" ? "USED" : "UNUSED";
               return (
                 <div key={coupon.id} className="bg-card rounded-xl p-4 flex gap-4" style={{ boxShadow: "var(--shadow-card)" }}>
                   <img src={deal?.image_url || "/placeholder.svg"} alt={deal?.title} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
@@ -71,9 +90,15 @@ const MyStuff = () => {
                     <p className="text-xs text-muted-foreground">Code: {coupon.code}</p>
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-sm font-bold text-foreground">GH₵{deal?.discounted_price}</span>
-                      <span className={`inline-flex items-center gap-1 text-xs font-semibold ${color}`}>
+                      <Button
+                        size="sm"
+                        variant={st === "UNUSED" ? "default" : "outline"}
+                        className="h-7 text-xs gap-1"
+                        disabled={toggleStatus.isPending}
+                        onClick={() => toggleStatus.mutate({ id: coupon.id, newStatus: nextStatus })}
+                      >
                         <Icon className="w-3 h-3" /> {label}
-                      </span>
+                      </Button>
                     </div>
                   </div>
                 </div>
