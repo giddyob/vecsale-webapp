@@ -2,25 +2,10 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { trendingDeals } from "@/data/deals";
-import { useState } from "react";
-
-const initialItems = trendingDeals.slice(0, 2).map((d) => ({ ...d, qty: 1 }));
+import { useCart } from "@/contexts/CartContext";
 
 const Cart = () => {
-  const [items, setItems] = useState(initialItems);
-
-  const updateQty = (id: string, delta: number) => {
-    setItems((prev) =>
-      prev.map((item) => item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item)
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const total = items.reduce((sum, item) => sum + item.currentPrice * item.qty, 0);
+  const { items, updateQty, removeItem, total } = useCart();
 
   return (
     <div className="min-h-screen bg-background">
@@ -41,25 +26,25 @@ const Cart = () => {
           <>
             <div className="space-y-4">
               {items.map((item) => (
-                <div key={item.id} className="bg-card rounded-xl p-4 flex gap-4" style={{ boxShadow: "var(--shadow-card)" }}>
+                <div key={`${item.id}__${item.optionId ?? ""}`} className="bg-card rounded-xl p-4 flex gap-4" style={{ boxShadow: "var(--shadow-card)" }}>
                   <img src={item.image} alt={item.title} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <Link to={`/deal/${item.id}`} className="text-sm font-semibold text-foreground hover:text-accent transition-colors line-clamp-1">
-                      {item.title}
+                      {item.optionTitle || item.title}
                     </Link>
                     <p className="text-xs text-muted-foreground mt-0.5">{item.merchant}</p>
                     <div className="flex items-center justify-between mt-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => updateQty(item.id, -1)} className="w-7 h-7 rounded-md border border-border flex items-center justify-center text-muted-foreground hover:text-foreground">
+                        <button onClick={() => updateQty(item.id, -1, item.optionId)} className="w-7 h-7 rounded-md border border-border flex items-center justify-center text-muted-foreground hover:text-foreground">
                           <Minus className="w-3 h-3" />
                         </button>
                         <span className="text-sm font-semibold text-foreground w-6 text-center">{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, 1)} className="w-7 h-7 rounded-md border border-border flex items-center justify-center text-muted-foreground hover:text-foreground">
+                        <button onClick={() => updateQty(item.id, 1, item.optionId)} className="w-7 h-7 rounded-md border border-border flex items-center justify-center text-muted-foreground hover:text-foreground">
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
                       <span className="text-sm font-bold text-foreground">GH₵{item.currentPrice * item.qty}</span>
-                      <button onClick={() => removeItem(item.id)} className="text-muted-foreground hover:text-destructive transition-colors">
+                      <button onClick={() => removeItem(item.id, item.optionId)} className="text-muted-foreground hover:text-destructive transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

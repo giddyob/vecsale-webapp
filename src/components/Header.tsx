@@ -1,13 +1,15 @@
-import { Search, Heart, ShoppingCart, User, LogOut, Menu, X } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, LogOut, Menu, Package } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { categories } from "@/data/deals";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { user, signOut } = useAuth();
+  const { itemCount } = useCart();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -34,6 +36,56 @@ const Header = () => {
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col p-4 gap-1">
+                  {user && (
+                    <>
+                      <Link
+                        to="/my-stuff"
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
+                      >
+                        <Package className="w-4 h-4" />
+                        My Stuff
+                      </Link>
+                      <Link
+                        to="/cart"
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
+                      >
+                        <ShoppingCart className="w-4 h-4" />
+                        Cart
+                        {itemCount > 0 && (
+                          <span className="ml-auto bg-accent text-accent-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                            {itemCount}
+                          </span>
+                        )}
+                      </Link>
+                      <Link
+                        to="/favourites"
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
+                      >
+                        <Heart className="w-4 h-4" />
+                        Favourites
+                      </Link>
+                      <Link
+                        to="/auth"
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
+                      >
+                        <User className="w-4 h-4" />
+                        Profile
+                      </Link>
+                    </>
+                  )}
+
+                  {!user && (
+                    <Link
+                      to="/auth"
+                      className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      Sign In
+                    </Link>
+                  )}
+
+                  <div className="border-t border-border my-3" />
+                  <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Categories</p>
                   {categories.map((cat) => (
                     <Link
                       key={cat}
@@ -43,23 +95,18 @@ const Header = () => {
                       {cat}
                     </Link>
                   ))}
-                  <div className="border-t border-border my-3" />
-                  {user ? (
+
+                  {user && (
                     <>
-                      <Link to="/my-stuff" className="px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
-                        My Stuff
-                      </Link>
-                      <Link to="/favourites" className="px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
-                        Favourites
-                      </Link>
-                      <button onClick={handleSignOut} className="px-3 py-2.5 text-sm font-medium text-left text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
+                      <div className="border-t border-border my-3" />
+                      <button
+                        onClick={handleSignOut}
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-left text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
                         Sign Out
                       </button>
                     </>
-                  ) : (
-                    <Link to="/auth" className="px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
-                      Sign In
-                    </Link>
                   )}
                 </nav>
               </SheetContent>
@@ -111,8 +158,13 @@ const Header = () => {
                 <span className="hidden sm:inline">Sign In</span>
               </Link>
             )}
-            <Link to="/cart" className="text-nav-foreground/80 hover:text-nav-foreground transition-colors">
+            <Link to="/cart" className="relative text-nav-foreground/80 hover:text-nav-foreground transition-colors">
               <ShoppingCart className="w-5 h-5" />
+              {itemCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>
