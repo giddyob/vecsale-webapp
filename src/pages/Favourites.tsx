@@ -28,6 +28,7 @@ const Favourites = () => {
         category: d.category,
         description: d.description,
         businessId: d.business_id,
+        subDeals: [],
       };
     });
 

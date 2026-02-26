@@ -1,5 +1,5 @@
 import { Heart, Star, MapPin } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { DealWithBusiness } from "@/hooks/useDeals";
 import { useFavorites, useToggleFavorite } from "@/hooks/useFavorites";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,9 +46,18 @@ const DealCard = ({ deal, variant = "default" }: DealCardProps) => {
 
       <div className="p-4">
         <div className="flex items-center gap-2 text-xs mb-1.5">
-          <span className="font-semibold text-accent uppercase tracking-wide truncate">
-            {deal.merchant}
-          </span>
+          {deal.businessId ? (
+            <span
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/business/${deal.businessId}`; }}
+              className="font-semibold text-accent uppercase tracking-wide truncate cursor-pointer hover:underline"
+            >
+              {deal.merchant}
+            </span>
+          ) : (
+            <span className="font-semibold text-accent uppercase tracking-wide truncate">
+              {deal.merchant}
+            </span>
+          )}
           <span className="flex items-center gap-0.5 text-muted-foreground">
             <MapPin className="w-3 h-3" />
             {deal.location}

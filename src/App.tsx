@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import DealDetail from "./pages/DealDetail";
+import BusinessProfile from "./pages/BusinessProfile";
 import Checkout from "./pages/Checkout";
 import Category from "./pages/Category";
 import Auth from "./pages/Auth";
@@ -26,6 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/deal/:id" element={<DealDetail />} />
+            <Route path="/business/:id" element={<BusinessProfile />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/category/:name" element={<Category />} />
             <Route path="/auth" element={<Auth />} />
