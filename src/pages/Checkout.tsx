@@ -1,32 +1,111 @@
-import { useSearchParams, Link } from "react-router-dom";
-import { ArrowLeft, CreditCard, Lock } from "lucide-react";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, CreditCard, Lock, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useDeal } from "@/hooks/useDeals";
-import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Checkout = () => {
   const [searchParams] = useSearchParams();
   const dealId = searchParams.get("deal");
+  const subId = searchParams.get("sub");
+  const status = searchParams.get("status");
   const { data: deal, isLoading } = useDeal(dealId || undefined);
-  const [submitted, setSubmitted] = useState(false);
+  const { user } = useAuth();
+  const { clearCart } = useCart();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [paying, setPaying] = useState(false);
 
-  if (submitted) {
+  // Handle callback from Paystack
+  const isSuccess = status === "success";
+
+  useEffect(() => {
+    if (isSuccess) {
+      clearCart();
+    }
+  }, [isSuccess, clearCart]);
+
+  if (isSuccess) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container py-20 text-center max-w-md mx-auto">
           <div className="text-5xl mb-4">🎉</div>
           <h1 className="text-2xl font-display font-bold text-foreground mb-2">Order Confirmed!</h1>
-          <p className="text-sm text-muted-foreground mb-6">Your deal has been purchased successfully. Check your email for confirmation.</p>
-          <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity">
-            Continue Shopping
-          </Link>
+          <p className="text-sm text-muted-foreground mb-6">Your deal has been purchased successfully. Check your email for confirmation and view your coupon in My Stuff.</p>
+          <div className="flex gap-3 justify-center">
+            <Link to="/my-stuff" className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity">
+              View My Coupons
+            </Link>
+            <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold border border-border text-foreground rounded-lg hover:bg-secondary transition-colors">
+              Continue Shopping
+            </Link>
+          </div>
         </div>
         <Footer />
       </div>
     );
   }
+
+  const handlePaystackPayment = async () => {
+    if (!user) {
+      toast({ title: "Please sign in to continue", variant: "destructive" });
+      navigate("/auth");
+      return;
+    }
+    if (!deal) return;
+
+    setPaying(true);
+    try {
+      const activeSub = subId ? deal.subDeals.find((s) => s.id === subId) : null;
+      const amount = activeSub ? activeSub.discounted_price : deal.currentPrice;
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+
+      const res = await fetch(
+        `https://uihnsmmcgiszhuzzqroi.supabase.co/functions/v1/initialize-payment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            deal_id: deal.id,
+            option_id: activeSub?.id || null,
+            amount,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok || !data.authorization_url) {
+        throw new Error(data.error || "Payment initialization failed");
+      }
+
+      // Redirect to Paystack checkout
+      window.location.href = data.authorization_url;
+    } catch (err: any) {
+      console.error("Payment error:", err);
+      toast({ title: "Payment failed", description: err.message, variant: "destructive" });
+      setPaying(false);
+    }
+  };
+
+  const activeSub = deal && subId ? deal.subDeals.find((s) => s.id === subId) : null;
+  const displayPrice = activeSub ? activeSub.discounted_price : deal?.currentPrice ?? 0;
+  const displayOriginal = activeSub ? activeSub.original_price : deal?.originalPrice ?? 0;
+  const displayDiscount = activeSub
+    ? Math.round(((activeSub.original_price - activeSub.discounted_price) / activeSub.original_price) * 100)
+    : deal?.discount ?? 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,23 +123,17 @@ const Checkout = () => {
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
             <div className="md:col-span-3 space-y-6">
               <div className="bg-card rounded-xl p-6" style={{ boxShadow: "var(--shadow-card)" }}>
-                <h2 className="font-display font-bold text-foreground mb-4">Contact Info</h2>
-                <div className="space-y-3">
-                  <input placeholder="Full Name" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                  <input placeholder="Email Address" type="email" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                  <input placeholder="Phone Number" type="tel" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                </div>
-              </div>
-
-              <div className="bg-card rounded-xl p-6" style={{ boxShadow: "var(--shadow-card)" }}>
                 <h2 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-accent" /> Payment
                 </h2>
-                <div className="space-y-3">
-                  <input placeholder="Card Number" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                  <div className="grid grid-cols-2 gap-3">
-                    <input placeholder="MM/YY" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                    <input placeholder="CVV" className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                <p className="text-sm text-muted-foreground mb-4">
+                  You'll be redirected to Paystack's secure payment page to complete your purchase.
+                </p>
+                <div className="bg-secondary rounded-lg p-4 flex items-start gap-3">
+                  <Lock className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Secure Payment</p>
+                    <p className="text-xs text-muted-foreground">Your payment is processed securely by Paystack. We never store your card details.</p>
                   </div>
                 </div>
               </div>
@@ -74,19 +147,21 @@ const Checkout = () => {
                     <div className="flex gap-3">
                       <img src={deal.image} alt={deal.title} className="w-16 h-16 rounded-lg object-cover" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-foreground line-clamp-2">{deal.title}</p>
+                        <p className="text-sm font-semibold text-foreground line-clamp-2">
+                          {activeSub ? activeSub.title : deal.title}
+                        </p>
                         <p className="text-xs text-muted-foreground">{deal.merchant}</p>
                       </div>
                     </div>
                     <div className="border-t border-border pt-3 space-y-2 text-sm">
                       <div className="flex justify-between text-muted-foreground">
-                        <span>Subtotal</span><span>GH₵{deal.originalPrice}</span>
+                        <span>Subtotal</span><span>GH₵{displayOriginal}</span>
                       </div>
                       <div className="flex justify-between text-accent font-semibold">
-                        <span>Discount (-{deal.discount}%)</span><span>-GH₵{deal.originalPrice - deal.currentPrice}</span>
+                        <span>Discount (-{displayDiscount}%)</span><span>-GH₵{displayOriginal - displayPrice}</span>
                       </div>
                       <div className="flex justify-between font-bold text-foreground text-base pt-2 border-t border-border">
-                        <span>Total</span><span>GH₵{deal.currentPrice}</span>
+                        <span>Total</span><span>GH₵{displayPrice}</span>
                       </div>
                     </div>
                   </div>
@@ -95,13 +170,18 @@ const Checkout = () => {
                 )}
 
                 <button
-                  onClick={() => setSubmitted(true)}
-                  className="w-full mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity"
+                  onClick={handlePaystackPayment}
+                  disabled={paying || !deal}
+                  className="w-full mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
-                  <Lock className="w-4 h-4" /> Place Order
+                  {paying ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
+                  ) : (
+                    <><Lock className="w-4 h-4" /> Pay with Paystack</>
+                  )}
                 </button>
                 <p className="text-xs text-center text-muted-foreground mt-3 flex items-center justify-center gap-1">
-                  <Lock className="w-3 h-3" /> Secure checkout
+                  <Lock className="w-3 h-3" /> Secure checkout powered by Paystack
                 </p>
               </div>
             </div>
