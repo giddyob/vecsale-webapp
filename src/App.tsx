@@ -15,6 +15,7 @@ import Auth from "./pages/Auth";
 import MyStuff from "./pages/MyStuff";
 import Favourites from "./pages/Favourites";
 import Cart from "./pages/Cart";
+import Voucher from "./pages/Voucher";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/deal/:id" element={<DealDetail />} />
+            <Route path="/voucher/:id" element={<Voucher />} />
             <Route path="/business/:id" element={<BusinessProfile />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/category/:name" element={<Category />} />
