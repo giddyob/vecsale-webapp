@@ -21,11 +21,14 @@ export type Database = {
           description: string | null
           email: string | null
           id: string
+          latitude: number | null
           location: string | null
           logo: string | null
+          longitude: number | null
           name: string | null
           opening_hours: string | null
           owner_id: string | null
+          payout_details: Json | null
           phone: string | null
           rating: number | null
           region: string | null
@@ -39,11 +42,14 @@ export type Database = {
           description?: string | null
           email?: string | null
           id: string
+          latitude?: number | null
           location?: string | null
           logo?: string | null
+          longitude?: number | null
           name?: string | null
           opening_hours?: string | null
           owner_id?: string | null
+          payout_details?: Json | null
           phone?: string | null
           rating?: number | null
           region?: string | null
@@ -57,11 +63,14 @@ export type Database = {
           description?: string | null
           email?: string | null
           id?: string
+          latitude?: number | null
           location?: string | null
           logo?: string | null
+          longitude?: number | null
           name?: string | null
           opening_hours?: string | null
           owner_id?: string | null
+          payout_details?: Json | null
           phone?: string | null
           rating?: number | null
           region?: string | null

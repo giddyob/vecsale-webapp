@@ -80,12 +80,12 @@ const MyStuff = () => {
               const { label, icon: Icon, color } = statusConfig[st] || statusConfig.UNUSED;
               const nextStatus = st === "UNUSED" ? "USED" : "UNUSED";
               return (
-                <div key={coupon.id} className="bg-card rounded-xl p-4 flex gap-4" style={{ boxShadow: "var(--shadow-card)" }}>
+                <Link key={coupon.id} to={`/voucher/${coupon.id}`} className="block bg-card rounded-xl p-4 flex gap-4 hover:ring-2 hover:ring-accent/30 transition-all" style={{ boxShadow: "var(--shadow-card)" }}>
                   <img src={deal?.image_url || "/placeholder.svg"} alt={deal?.title} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <Link to={`/deal/${coupon.deal_id}`} className="text-sm font-semibold text-foreground hover:text-accent transition-colors line-clamp-1">
+                    <span className="text-sm font-semibold text-foreground line-clamp-1">
                       {deal?.title || "Deal"}
-                    </Link>
+                    </span>
                     <p className="text-xs text-muted-foreground mt-0.5">{deal?.businesses?.name} · {deal?.location}</p>
                     <p className="text-xs text-muted-foreground">Code: {coupon.code}</p>
                     <div className="flex items-center justify-between mt-2">
@@ -101,7 +101,7 @@ const MyStuff = () => {
                       </Button>
                     </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
