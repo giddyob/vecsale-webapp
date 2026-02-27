@@ -42,7 +42,11 @@ const Voucher = () => {
   const generatePDF = async (): Promise<Blob> => {
     const el = voucherRef.current;
     if (!el) throw new Error("Voucher element not found");
+    // Hide the deal image during PDF capture
+    const img = el.querySelector("[data-voucher-image]") as HTMLElement | null;
+    if (img) img.style.display = "none";
     const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+    if (img) img.style.display = "";
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a5" });
     const pdfW = pdf.internal.pageSize.getWidth();
@@ -133,7 +137,7 @@ const Voucher = () => {
         <div ref={voucherRef} className="bg-card rounded-2xl overflow-hidden border border-border" style={{ boxShadow: "var(--shadow-card)" }}>
           {/* Header image */}
           {deal?.image_url && (
-            <img src={deal.image_url} alt={deal.title} className="w-full h-40 object-cover" />
+            <img data-voucher-image src={deal.image_url} alt={deal.title} className="w-full h-40 object-cover" />
           )}
 
           <div className="p-6 space-y-6">
