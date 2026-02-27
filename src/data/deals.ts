@@ -207,6 +207,6 @@ export const categories = [
   "Health & Fitness",
   "Goods",
   "Travel",
-  "Automotive",
+  "Auto",
   "Gifts",
 ];
