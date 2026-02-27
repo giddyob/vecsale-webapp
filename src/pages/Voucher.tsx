@@ -1,6 +1,9 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Package, CheckCircle, Clock, Share2, MapPin, Store } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowLeft, Package, CheckCircle, Clock, Share2, MapPin, Store, Download } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +22,8 @@ const statusConfig = {
 const Voucher = () => {
   const { id } = useParams();
   const { user } = useAuth();
+  const voucherRef = useRef<HTMLDivElement>(null);
+  const [generating, setGenerating] = useState(false);
 
   const { data: coupon, isLoading } = useQuery({
     queryKey: ["voucher", id],
@@ -34,16 +39,57 @@ const Voucher = () => {
     },
   });
 
+  const generatePDF = async (): Promise<Blob> => {
+    const el = voucherRef.current;
+    if (!el) throw new Error("Voucher element not found");
+    const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a5" });
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = (canvas.height * pdfW) / canvas.width;
+    pdf.addImage(imgData, "PNG", 0, 0, pdfW, pdfH);
+    return pdf.output("blob");
+  };
+
+  const handleDownload = async () => {
+    setGenerating(true);
+    try {
+      const blob = await generatePDF();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `voucher-${coupon?.code || "download"}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Voucher downloaded!");
+    } catch {
+      toast.error("Failed to generate PDF");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const handleShare = async () => {
-    const url = window.location.href;
-    const text = `Check out my voucher for ${coupon?.deals?.title}!`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: "My Voucher", text, url });
-      } catch {}
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast.success("Link copied to clipboard");
+    setGenerating(true);
+    try {
+      const blob = await generatePDF();
+      const file = new File([blob], `voucher-${coupon?.code || "share"}.pdf`, { type: "application/pdf" });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ title: `Voucher - ${coupon?.deals?.title}`, files: [file] });
+      } else {
+        // Fallback to download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("PDF downloaded (sharing not supported on this device)");
+      }
+    } catch {
+      toast.error("Failed to share voucher");
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -84,7 +130,7 @@ const Voucher = () => {
         </Link>
 
         {/* Voucher Card */}
-        <div className="bg-card rounded-2xl overflow-hidden border border-border" style={{ boxShadow: "var(--shadow-card)" }}>
+        <div ref={voucherRef} className="bg-card rounded-2xl overflow-hidden border border-border" style={{ boxShadow: "var(--shadow-card)" }}>
           {/* Header image */}
           {deal?.image_url && (
             <img src={deal.image_url} alt={deal.title} className="w-full h-40 object-cover" />
@@ -162,9 +208,14 @@ const Voucher = () => {
             )}
 
             {/* Share Button */}
-            <Button onClick={handleShare} variant="outline" className="w-full gap-2">
-              <Share2 className="w-4 h-4" /> Share Voucher
-            </Button>
+            <div className="flex gap-3">
+              <Button onClick={handleDownload} variant="outline" className="flex-1 gap-2" disabled={generating}>
+                <Download className="w-4 h-4" /> {generating ? "Generating..." : "Download PDF"}
+              </Button>
+              <Button onClick={handleShare} variant="default" className="flex-1 gap-2" disabled={generating}>
+                <Share2 className="w-4 h-4" /> Share
+              </Button>
+            </div>
           </div>
         </div>
       </div>
