@@ -210,3 +210,14 @@ export const categories = [
   "Auto",
   "Gifts",
 ];
+
+export const categoryIconNames: Record<string, string> = {
+  "Things To Do": "Ticket",
+  "Beauty & Spas": "Sparkles",
+  "Food & Drink": "UtensilsCrossed",
+  "Health & Fitness": "Dumbbell",
+  "Goods": "ShoppingBag",
+  "Travel": "Plane",
+  "Auto": "Car",
+  "Gifts": "Gift",
+};

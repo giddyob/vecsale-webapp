@@ -1,10 +1,14 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Ticket, Sparkles, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Car, Gift } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DealCard from "@/components/DealCard";
 import { useDealsByCategory } from "@/hooks/useDeals";
-import { categories } from "@/data/deals";
+import { categories, categoryIconNames } from "@/data/deals";
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Ticket, Sparkles, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Car, Gift,
+};
 
 const Category = () => {
   const { name } = useParams();
@@ -26,19 +30,23 @@ const Category = () => {
         </div>
 
         <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-8 pb-1">
-          {categories.map((cat) => (
-            <Link
-              key={cat}
-              to={`/category/${encodeURIComponent(cat)}`}
-              className={`flex-shrink-0 px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                cat.toLowerCase() === decodedName.toLowerCase()
-                  ? "bg-accent text-accent-foreground"
-                  : "bg-card text-muted-foreground hover:text-foreground border border-border"
-              }`}
-            >
-              {cat}
-            </Link>
-          ))}
+          {categories.map((cat) => {
+            const IconComp = iconMap[categoryIconNames[cat]];
+            return (
+              <Link
+                key={cat}
+                to={`/category/${encodeURIComponent(cat)}`}
+                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                  cat.toLowerCase() === decodedName.toLowerCase()
+                    ? "bg-accent text-accent-foreground"
+                    : "bg-card text-muted-foreground hover:text-foreground border border-border"
+                }`}
+              >
+                {IconComp && <IconComp className="w-4 h-4" />}
+                {cat}
+              </Link>
+            );
+          })}
         </div>
 
         {isLoading ? (

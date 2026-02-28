@@ -36,8 +36,8 @@
 
     --radius: 0.625rem;
 
-    --nav-bg: 216 28% 14%;
-    --nav-foreground: 0 0% 100%;
+    --nav-bg: 0 0% 100%;
+    --nav-foreground: 216 28% 14%;
 
     --badge-discount: 18 90% 54%;
     --badge-discount-foreground: 0 0% 100%;
