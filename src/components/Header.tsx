@@ -107,7 +107,7 @@ const Header = () => {
             </Sheet>
 
             <a href="/" className="flex-shrink-0">
-              <img src={vecsaleLogo} alt="VecSale" className="hidden md:block h-10 w-auto" />
+              <img src={vecsaleLogo} alt="VecSale" className="hidden md:block" style={{ width: 140, height: 23 }} />
               <span className="md:hidden text-2xl font-display font-extrabold text-nav-foreground">
                 Vec<span className="text-accent">Sale</span>
               </span>
