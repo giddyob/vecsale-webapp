@@ -7,8 +7,8 @@ import { useCart } from "@/contexts/CartContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import vecsaleLogo from "@/assets/vecsale-logo.png";
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Ticket, Sparkles, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Car, Gift,
+const iconMap: Record<string, React.ComponentType<{className?: string;}>> = {
+  Ticket, Sparkles, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Car, Gift
 };
 
 const Header = () => {
@@ -41,8 +41,8 @@ const Header = () => {
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col p-4 gap-1">
-                  {user && (
-                    <>
+                  {user &&
+                  <>
                       <Link to="/my-stuff" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
                         <Package className="w-4 h-4" />
                         My Stuff
@@ -50,11 +50,11 @@ const Header = () => {
                       <Link to="/cart" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
                         <ShoppingCart className="w-4 h-4" />
                         Cart
-                        {itemCount > 0 && (
-                          <span className="ml-auto bg-accent text-accent-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {itemCount > 0 &&
+                      <span className="ml-auto bg-accent text-accent-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                             {itemCount}
                           </span>
-                        )}
+                      }
                       </Link>
                       <Link to="/favourites" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
                         <Heart className="w-4 h-4" />
@@ -65,14 +65,14 @@ const Header = () => {
                         Profile
                       </Link>
                     </>
-                  )}
+                  }
 
-                  {!user && (
-                    <Link to="/auth" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
+                  {!user &&
+                  <Link to="/auth" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
                       <User className="w-4 h-4" />
                       Sign In
                     </Link>
-                  )}
+                  }
 
                   <div className="border-t border-border my-3" />
                   <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Categories</p>
@@ -82,26 +82,26 @@ const Header = () => {
                       <Link
                         key={cat}
                         to={`/category/${encodeURIComponent(cat)}`}
-                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
-                      >
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
+
                         {IconComp && <IconComp className="w-4 h-4" />}
                         {cat}
-                      </Link>
-                    );
+                      </Link>);
+
                   })}
 
-                  {user && (
-                    <>
+                  {user &&
+                  <>
                       <div className="border-t border-border my-3" />
                       <button
-                        onClick={handleSignOut}
-                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-left text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
-                      >
+                      onClick={handleSignOut}
+                      className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-left text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
+
                         <LogOut className="w-4 h-4" />
                         Sign Out
                       </button>
                     </>
-                  )}
+                  }
                 </nav>
               </SheetContent>
             </Sheet>
@@ -125,8 +125,8 @@ const Header = () => {
                 placeholder="Find local deals..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 px-3 py-2.5 text-sm bg-card text-foreground placeholder:text-muted-foreground focus:outline-none"
-              />
+                className="flex-1 px-3 py-2.5 text-sm bg-card text-foreground placeholder:text-muted-foreground focus:outline-none" />
+
               <button className="px-5 py-2.5 text-sm font-semibold bg-accent text-accent-foreground hover:opacity-90 transition-opacity">
                 Search
               </button>
@@ -134,32 +134,32 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            {user && (
-              <Link to="/my-stuff" className="hidden sm:flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
-                <span>My Stuff</span>
+            {user &&
+            <Link to="/my-stuff" className="hidden sm:flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
+                <span className="">My Stuff</span>
               </Link>
-            )}
+            }
             <Link to="/favourites" className="text-nav-foreground/80 hover:text-nav-foreground transition-colors">
               <Heart className="w-5 h-5" />
             </Link>
-            {user ? (
-              <button onClick={handleSignOut} className="hidden sm:flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
+            {user ?
+            <button onClick={handleSignOut} className="hidden sm:flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
                 <LogOut className="w-5 h-5" />
                 <span className="hidden sm:inline">Sign Out</span>
-              </button>
-            ) : (
-              <Link to="/auth" className="hidden sm:flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
+              </button> :
+
+            <Link to="/auth" className="hidden sm:flex items-center gap-2 text-sm text-nav-foreground/80 hover:text-nav-foreground transition-colors">
                 <User className="w-5 h-5" />
                 <span className="hidden sm:inline">Sign In</span>
               </Link>
-            )}
+            }
             <Link to="/cart" className="relative text-nav-foreground/80 hover:text-nav-foreground transition-colors">
               <ShoppingCart className="w-5 h-5" />
-              {itemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+              {itemCount > 0 &&
+              <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                   {itemCount}
                 </span>
-              )}
+              }
             </Link>
           </div>
         </div>
@@ -175,8 +175,8 @@ const Header = () => {
               placeholder="Find local deals..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-3 py-2 text-sm bg-card text-foreground placeholder:text-muted-foreground focus:outline-none"
-            />
+              className="flex-1 px-3 py-2 text-sm bg-card text-foreground placeholder:text-muted-foreground focus:outline-none" />
+
             <button className="px-4 py-2 text-sm font-semibold bg-accent text-accent-foreground hover:opacity-90 transition-opacity">
               Search
             </button>
@@ -194,18 +194,18 @@ const Header = () => {
                 <Link
                   key={cat}
                   to={`/category/${encodeURIComponent(cat)}`}
-                  className="flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
-                >
+                  className="flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 text-sm font-medium hover:bg-secondary rounded-md transition-colors text-neutral-950">
+
                   {IconComp && <IconComp className="w-4 h-4" />}
                   {cat}
-                </Link>
-              );
+                </Link>);
+
             })}
           </nav>
         </div>
       </div>
-    </header>
-  );
+    </header>);
+
 };
 
 export default Header;
