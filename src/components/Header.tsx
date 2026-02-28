@@ -1,11 +1,15 @@
-import { Search, Heart, ShoppingCart, User, LogOut, Menu, Package } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, LogOut, Menu, Package, Ticket, Sparkles, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Car, Gift } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { categories } from "@/data/deals";
+import { categories, categoryIconNames } from "@/data/deals";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import vecsaleLogo from "@/assets/vecsale-logo.png";
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Ticket, Sparkles, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Car, Gift,
+};
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,7 +24,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="bg-nav">
+      <div className="bg-nav border-b border-border">
         <div className="container flex items-center justify-between gap-4 py-3">
           <div className="flex items-center gap-3">
             {/* Mobile hamburger */}
@@ -39,17 +43,11 @@ const Header = () => {
                 <nav className="flex flex-col p-4 gap-1">
                   {user && (
                     <>
-                      <Link
-                        to="/my-stuff"
-                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
-                      >
+                      <Link to="/my-stuff" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
                         <Package className="w-4 h-4" />
                         My Stuff
                       </Link>
-                      <Link
-                        to="/cart"
-                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
-                      >
+                      <Link to="/cart" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
                         <ShoppingCart className="w-4 h-4" />
                         Cart
                         {itemCount > 0 && (
@@ -58,17 +56,11 @@ const Header = () => {
                           </span>
                         )}
                       </Link>
-                      <Link
-                        to="/favourites"
-                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
-                      >
+                      <Link to="/favourites" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
                         <Heart className="w-4 h-4" />
                         Favourites
                       </Link>
-                      <Link
-                        to="/auth"
-                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
-                      >
+                      <Link to="/auth" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
                         <User className="w-4 h-4" />
                         Profile
                       </Link>
@@ -76,10 +68,7 @@ const Header = () => {
                   )}
 
                   {!user && (
-                    <Link
-                      to="/auth"
-                      className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
-                    >
+                    <Link to="/auth" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
                       <User className="w-4 h-4" />
                       Sign In
                     </Link>
@@ -87,15 +76,19 @@ const Header = () => {
 
                   <div className="border-t border-border my-3" />
                   <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Categories</p>
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat}
-                      to={`/category/${encodeURIComponent(cat)}`}
-                      className="px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
-                    >
-                      {cat}
-                    </Link>
-                  ))}
+                  {categories.map((cat) => {
+                    const IconComp = iconMap[categoryIconNames[cat]];
+                    return (
+                      <Link
+                        key={cat}
+                        to={`/category/${encodeURIComponent(cat)}`}
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
+                      >
+                        {IconComp && <IconComp className="w-4 h-4" />}
+                        {cat}
+                      </Link>
+                    );
+                  })}
 
                   {user && (
                     <>
@@ -114,7 +107,7 @@ const Header = () => {
             </Sheet>
 
             <a href="/" className="flex-shrink-0">
-              <img src={vecsaleLogo} alt="VecSale" className="hidden md:block h-8 w-auto" />
+              <img src={vecsaleLogo} alt="VecSale" className="hidden md:block h-10 w-auto" />
               <span className="md:hidden text-2xl font-display font-extrabold text-nav-foreground">
                 Vec<span className="text-accent">Sale</span>
               </span>
@@ -123,7 +116,7 @@ const Header = () => {
 
           {/* Desktop search */}
           <div className="hidden md:flex flex-1 max-w-xl">
-            <div className="flex w-full rounded-lg overflow-hidden bg-card">
+            <div className="flex w-full rounded-lg overflow-hidden border border-border">
               <div className="flex items-center pl-4 text-muted-foreground">
                 <Search className="w-4 h-4" />
               </div>
@@ -173,7 +166,7 @@ const Header = () => {
 
         {/* Mobile search - second line */}
         <div className="md:hidden px-4 pb-3">
-          <div className="flex w-full rounded-lg overflow-hidden bg-card">
+          <div className="flex w-full rounded-lg overflow-hidden border border-border">
             <div className="flex items-center pl-3 text-muted-foreground">
               <Search className="w-4 h-4" />
             </div>
@@ -195,15 +188,19 @@ const Header = () => {
       <div className="hidden md:block bg-card border-b border-border">
         <div className="container">
           <nav className="flex items-center gap-1 overflow-x-auto py-2 scrollbar-hide">
-            {categories.map((cat) => (
-              <Link
-                key={cat}
-                to={`/category/${encodeURIComponent(cat)}`}
-                className="flex-shrink-0 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
-              >
-                {cat}
-              </Link>
-            ))}
+            {categories.map((cat) => {
+              const IconComp = iconMap[categoryIconNames[cat]];
+              return (
+                <Link
+                  key={cat}
+                  to={`/category/${encodeURIComponent(cat)}`}
+                  className="flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors"
+                >
+                  {IconComp && <IconComp className="w-4 h-4" />}
+                  {cat}
+                </Link>
+              );
+            })}
           </nav>
         </div>
       </div>
