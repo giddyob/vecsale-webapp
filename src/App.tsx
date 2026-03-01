@@ -16,6 +16,7 @@ import MyStuff from "./pages/MyStuff";
 import Favourites from "./pages/Favourites";
 import Cart from "./pages/Cart";
 import Voucher from "./pages/Voucher";
+import MerchantSignup from "./pages/MerchantSignup";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/my-stuff" element={<MyStuff />} />
             <Route path="/favourites" element={<Favourites />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/merchant" element={<MerchantSignup />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
