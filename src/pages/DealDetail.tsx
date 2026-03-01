@@ -92,30 +92,36 @@ const DealDetail = () => {
             {/* Sub-deals */}
             {deal.subDeals.length > 0 && (
               <div className="mb-6">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Options</p>
-                <div className="space-y-2">
-                  {deal.subDeals.map((sub: SubDeal) => (
-                    <button
-                      key={sub.id}
-                      onClick={() => setSelectedSub(selectedSub === sub.id ? null : sub.id)}
-                      className={`w-full text-left rounded-lg border p-3 transition-colors ${
-                        selectedSub === sub.id
-                          ? "border-accent bg-accent/5"
-                          : "border-border bg-card hover:border-accent/50"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-foreground">{sub.title}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground line-through">GH₵{sub.original_price}</span>
-                          <span className="text-sm font-bold text-foreground">GH₵{sub.discounted_price}</span>
+                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Select Option:</p>
+                <div className="space-y-3">
+                  {deal.subDeals.map((sub: SubDeal) => {
+                    const subDiscount = Math.round(((sub.original_price - sub.discounted_price) / sub.original_price) * 100);
+                    return (
+                      <button
+                        key={sub.id}
+                        onClick={() => setSelectedSub(selectedSub === sub.id ? null : sub.id)}
+                        className={`w-full text-left rounded-xl border-2 p-5 transition-all ${
+                          selectedSub === sub.id
+                            ? "border-accent bg-accent/5 shadow-md"
+                            : "border-border bg-card hover:border-accent/40 hover:shadow-sm"
+                        }`}
+                      >
+                        <h5 className="text-base font-bold text-foreground leading-snug mb-3">
+                          {sub.title}
+                        </h5>
+                        {sub.description && (
+                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{sub.description}</p>
+                        )}
+                        <div className="flex items-center gap-3">
+                          <span className="text-muted-foreground line-through text-base">GH₵{sub.original_price}</span>
+                          <span className="text-xl font-extrabold text-foreground">GH₵{sub.discounted_price}</span>
+                          <span className="text-xs font-bold bg-accent text-accent-foreground px-2 py-0.5 rounded-md">
+                            -{subDiscount}%
+                          </span>
                         </div>
-                      </div>
-                      {sub.description && (
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{sub.description}</p>
-                      )}
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
