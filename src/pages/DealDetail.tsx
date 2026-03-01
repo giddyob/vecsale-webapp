@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Heart, Star, MapPin, ShoppingCart, Share2, Shield } from "lucide-react";
+import { ArrowLeft, Heart, Star, MapPin, ShoppingCart, Share2, Shield, ChevronLeft, ChevronRight, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DealCard from "@/components/DealCard";
@@ -9,6 +9,7 @@ import { useFavorites, useToggleFavorite } from "@/hooks/useFavorites";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 const DealDetail = () => {
   const { id } = useParams();
@@ -19,6 +20,8 @@ const DealDetail = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedSub, setSelectedSub] = useState<string | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const isFav = deal ? favIds.includes(deal.id) : false;
 
@@ -61,11 +64,72 @@ const DealDetail = () => {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="relative rounded-xl overflow-hidden aspect-[4/3]">
-            <img src={deal.image} alt={deal.title} className="w-full h-full object-cover" />
-            <span className="absolute top-4 left-4 text-sm font-bold bg-accent text-accent-foreground px-3 py-1 rounded-lg">
-              -{displayDiscount}% OFF
-            </span>
+          <div>
+            {/* Main image */}
+            <div
+              className="relative rounded-xl overflow-hidden aspect-[4/3] cursor-pointer"
+              onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}
+            >
+              <img src={deal.image} alt={deal.title} className="w-full h-full object-cover" />
+              <span className="absolute top-4 left-4 text-sm font-bold bg-accent text-accent-foreground px-3 py-1 rounded-lg">
+                -{displayDiscount}% OFF
+              </span>
+            </div>
+
+            {/* Gallery thumbnails */}
+            {deal.galleryUrls.length > 0 && (
+              <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                {deal.galleryUrls.map((url, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setLightboxIndex(i + 1); setLightboxOpen(true); }}
+                    className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-border hover:border-accent transition-colors"
+                  >
+                    <img src={url} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Lightbox */}
+            <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+              <DialogContent className="max-w-4xl p-0 bg-black/95 border-none overflow-hidden">
+                {(() => {
+                  const allImages = [deal.image, ...deal.galleryUrls];
+                  const current = allImages[lightboxIndex] || deal.image;
+                  return (
+                    <div className="relative flex items-center justify-center min-h-[60vh]">
+                      <img src={current} alt={deal.title} className="max-h-[80vh] max-w-full object-contain" />
+                      {allImages.length > 1 && (
+                        <>
+                          <button
+                            onClick={() => setLightboxIndex((lightboxIndex - 1 + allImages.length) % allImages.length)}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 rounded-full p-2 transition-colors"
+                          >
+                            <ChevronLeft className="w-6 h-6 text-white" />
+                          </button>
+                          <button
+                            onClick={() => setLightboxIndex((lightboxIndex + 1) % allImages.length)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 rounded-full p-2 transition-colors"
+                          >
+                            <ChevronRight className="w-6 h-6 text-white" />
+                          </button>
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                            {allImages.map((_, i) => (
+                              <button
+                                key={i}
+                                onClick={() => setLightboxIndex(i)}
+                                className={`w-2 h-2 rounded-full transition-colors ${i === lightboxIndex ? "bg-white" : "bg-white/40"}`}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="flex flex-col">
