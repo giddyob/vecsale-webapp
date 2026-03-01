@@ -27,6 +27,7 @@ export interface DealWithBusiness {
   description: string | null;
   businessId: string | null;
   subDeals: SubDeal[];
+  galleryUrls: string[];
 }
 
 function parseSubDeals(raw: any): SubDeal[] {
@@ -35,6 +36,15 @@ function parseSubDeals(raw: any): SubDeal[] {
     const arr = typeof raw === "string" ? JSON.parse(raw) : raw;
     if (!Array.isArray(arr)) return [];
     return arr.filter((s: any) => s && s.title);
+  } catch { return []; }
+}
+
+function parseGalleryUrls(raw: any): string[] {
+  if (!raw) return [];
+  try {
+    const arr = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (!Array.isArray(arr)) return [];
+    return arr.filter((u: any) => typeof u === "string" && u.length > 0);
   } catch { return []; }
 }
 
@@ -53,6 +63,7 @@ function mapDeal(deal: any): DealWithBusiness {
     description: deal.description,
     businessId: deal.business_id,
     subDeals: parseSubDeals(deal.sub_options),
+    galleryUrls: parseGalleryUrls(deal.gallery_urls),
   };
 }
 
