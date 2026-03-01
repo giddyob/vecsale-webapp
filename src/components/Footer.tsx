@@ -18,7 +18,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm text-nav-foreground/60">
               <li><a href="#" className="hover:text-nav-foreground transition-colors">About Us</a></li>
               <li><a href="#" className="hover:text-nav-foreground transition-colors">How It Works</a></li>
-              <li><a href="#" className="hover:text-nav-foreground transition-colors">Sell on VecSale</a></li>
+              <li><a href="/merchant" className="hover:text-nav-foreground transition-colors">Sell on VecSale</a></li>
             </ul>
           </div>
           <div>

@@ -45,7 +45,7 @@ const DealCard = ({ deal, variant = "default" }: DealCardProps) => {
       </div>
 
       <div className="p-4">
-        <div className="flex items-center gap-2 text-xs mb-1.5">
+        <div className="flex items-center gap-2 text-sm mb-2">
           {deal.businessId ? (
             <span
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/business/${deal.businessId}`; }}
@@ -59,21 +59,21 @@ const DealCard = ({ deal, variant = "default" }: DealCardProps) => {
             </span>
           )}
           <span className="flex items-center gap-0.5 text-muted-foreground">
-            <MapPin className="w-3 h-3" />
+            <MapPin className="w-3.5 h-3.5" />
             {deal.location}
           </span>
           <span className="flex items-center gap-0.5 text-foreground ml-auto">
-            <Star className="w-3 h-3 fill-accent text-accent" />
+            <Star className="w-3.5 h-3.5 fill-accent text-accent" />
             {deal.rating}
           </span>
         </div>
 
-        <h3 className="font-display font-semibold text-sm text-foreground leading-tight mb-3 line-clamp-2">
+        <h3 className="font-display font-semibold text-base text-foreground leading-tight mb-3 line-clamp-2">
           {deal.title}
         </h3>
 
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-foreground">
+          <span className="text-xl font-bold text-foreground">
             GH₵{deal.currentPrice}
           </span>
           <span className="text-sm text-muted-foreground line-through">
