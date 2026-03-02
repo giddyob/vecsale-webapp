@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { createHmac } from "https://deno.land/std@0.168.0/crypto/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,16 +41,32 @@ serve(async (req) => {
     }
 
     const event = JSON.parse(body);
+    console.info("Paystack webhook event:", event.event);
 
     if (event.event !== "charge.success") {
       return new Response("OK", { status: 200 });
     }
 
     const { metadata, reference, amount } = event.data;
-    const { deal_id, option_id, user_id } = metadata;
+    console.info("Full metadata received:", JSON.stringify(metadata));
+
+    // Paystack can nest custom metadata in different ways
+    // Try direct access first, then check custom_fields array
+    let deal_id = metadata?.deal_id;
+    let option_id = metadata?.option_id;
+    let user_id = metadata?.user_id;
+
+    // If not found directly, check custom_fields array
+    if (!deal_id && metadata?.custom_fields) {
+      for (const field of metadata.custom_fields) {
+        if (field.variable_name === "deal_id") deal_id = field.value;
+        if (field.variable_name === "option_id") option_id = field.value;
+        if (field.variable_name === "user_id") user_id = field.value;
+      }
+    }
 
     if (!deal_id || !user_id) {
-      console.error("Missing metadata", metadata);
+      console.error("Missing user_id or deal_id in metadata", JSON.stringify(metadata));
       return new Response("Missing metadata", { status: 400 });
     }
 
@@ -93,7 +108,7 @@ serve(async (req) => {
       description: `Deal purchase - ${code}`,
     });
 
-    console.log("Payment processed:", { reference, code, deal_id });
+    console.log("Payment processed:", { reference, code, deal_id, user_id });
     return new Response("OK", { status: 200 });
   } catch (err) {
     console.error("Webhook error:", err);
