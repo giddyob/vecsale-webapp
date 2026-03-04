@@ -1,3 +1,4 @@
+
 import { Search, Heart, ShoppingCart, User, LogOut, Menu, Package, Ticket, Sparkles, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Car, Gift, Bell } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { categories, categoryIconNames } from "@/data/deals";
