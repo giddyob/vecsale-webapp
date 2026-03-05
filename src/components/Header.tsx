@@ -29,6 +29,20 @@ const Header = () => {
     navigate("/");
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (q) {
+      navigate(`/search?q=${encodeURIComponent(q)}`);
+    }
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch(e as unknown as React.FormEvent);
+    }
+  };
+
   const initials = user?.email ? getInitials(user.email) : "";
 
   return (
@@ -36,11 +50,11 @@ const Header = () => {
       <div className="bg-nav border-b border-border">
         <div className="container flex items-center justify-between gap-4 py-3">
           <div className="flex items-center gap-3">
-            {/* Mobile hamburger */}
+            {/* Mobile hamburger — larger, black */}
             <Sheet>
               <SheetTrigger asChild>
-                <button className="md:hidden text-nav-foreground/80 hover:text-nav-foreground transition-colors">
-                  <Menu className="w-5 h-5" />
+                <button className="md:hidden text-black hover:text-black/70 transition-colors">
+                  <Menu className="w-8 h-8" />
                 </button>
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-0">
@@ -130,24 +144,41 @@ const Header = () => {
             </a>
           </div>
 
-          {/* Desktop search */}
-          <div className="hidden md:flex flex-1 max-w-xl">
-            <div className="flex w-full rounded-lg overflow-hidden border border-border">
-              <div className="flex items-center pl-4 text-muted-foreground">
-                <Search className="w-4 h-4" />
-              </div>
+          {/* Desktop search — Groupon pill style */}
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl">
+            <div
+              className="flex w-full items-center bg-white"
+              style={{
+                border: "2px solid hsl(var(--accent))",
+                borderRadius: "9999px",
+                height: 48,
+                overflow: "hidden",
+              }}
+            >
               <input
                 type="text"
-                placeholder="Find local deals..."
+                placeholder="Search local deals..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 px-3 py-2.5 text-sm bg-card text-foreground placeholder:text-muted-foreground focus:outline-none" />
-
-              <button className="px-5 py-2.5 text-sm font-semibold bg-accent text-accent-foreground hover:opacity-90 transition-opacity">
-                Search
+                onKeyDown={handleSearchKeyDown}
+                className="flex-1 px-5 py-2 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="flex items-center justify-center flex-shrink-0 transition-opacity hover:opacity-85"
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  background: "hsl(var(--accent))",
+                  marginRight: 4,
+                }}
+                aria-label="Search"
+              >
+                <Search className="w-4 h-4 text-white" />
               </button>
             </div>
-          </div>
+          </form>
 
           <div className="flex items-center gap-4">
             {/* Notification bell */}
@@ -189,23 +220,42 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile search - second line */}
+        {/* Mobile search — Groupon pill style */}
         <div className="md:hidden px-4 pb-3">
-          <div className="flex w-full rounded-lg overflow-hidden border border-border">
-            <div className="flex items-center pl-3 text-muted-foreground">
-              <Search className="w-4 h-4" />
+          <form onSubmit={handleSearch}>
+            <div
+              className="flex w-full items-center bg-white"
+              style={{
+                border: "2px solid hsl(var(--accent))",
+                borderRadius: "9999px",
+                height: 44,
+                overflow: "hidden",
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Search local deals..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+                className="flex-1 px-4 py-2 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="flex items-center justify-center flex-shrink-0 transition-opacity hover:opacity-85"
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
+                  background: "hsl(var(--accent))",
+                  marginRight: 4,
+                }}
+                aria-label="Search"
+              >
+                <Search className="w-4 h-4 text-white" />
+              </button>
             </div>
-            <input
-              type="text"
-              placeholder="Find local deals..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-3 py-2 text-sm bg-card text-foreground placeholder:text-muted-foreground focus:outline-none" />
-
-            <button className="px-4 py-2 text-sm font-semibold bg-accent text-accent-foreground hover:opacity-90 transition-opacity">
-              Search
-            </button>
-          </div>
+          </form>
         </div>
       </div>
 

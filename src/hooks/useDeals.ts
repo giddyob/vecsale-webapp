@@ -171,3 +171,21 @@ export function useDealsByCategory(category: string) {
     },
   });
 }
+
+export function useSearchDeals(query: string) {
+  return useQuery({
+    queryKey: ["deals", "search", query],
+    enabled: query.trim().length > 0,
+    queryFn: async () => {
+      const term = `%${query.trim()}%`;
+      const { data, error } = await supabase
+        .from("deals")
+        .select("*, businesses(name, rating, location)")
+        .eq("status", "active")
+        .or(`title.ilike.${term},category.ilike.${term},location.ilike.${term}`)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []).map(mapDeal);
+    },
+  });
+}

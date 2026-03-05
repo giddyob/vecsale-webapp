@@ -17,6 +17,7 @@ import Favourites from "./pages/Favourites";
 import Cart from "./pages/Cart";
 import Voucher from "./pages/Voucher";
 import MerchantSignup from "./pages/MerchantSignup";
+import SearchPage from "./pages/Search";
 
 const queryClient = new QueryClient();
 
@@ -24,26 +25,27 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <CartProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/deal/:id" element={<DealDetail />} />
-            <Route path="/voucher/:id" element={<Voucher />} />
-            <Route path="/business/:id" element={<BusinessProfile />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/category/:name" element={<Category />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/my-stuff" element={<MyStuff />} />
-            <Route path="/favourites" element={<Favourites />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/merchant" element={<MerchantSignup />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/deal/:id" element={<DealDetail />} />
+              <Route path="/voucher/:id" element={<Voucher />} />
+              <Route path="/business/:id" element={<BusinessProfile />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/category/:name" element={<Category />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/my-stuff" element={<MyStuff />} />
+              <Route path="/favourites" element={<Favourites />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/merchant" element={<MerchantSignup />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
       </CartProvider>
     </AuthProvider>
   </QueryClientProvider>
