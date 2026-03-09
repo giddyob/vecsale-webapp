@@ -18,6 +18,7 @@ import Cart from "./pages/Cart";
 import Voucher from "./pages/Voucher";
 import MerchantSignup from "./pages/MerchantSignup";
 import SearchPage from "./pages/Search";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/cart" element={<Cart />} />
               <Route path="/merchant" element={<MerchantSignup />} />
               <Route path="/search" element={<SearchPage />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

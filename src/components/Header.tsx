@@ -1,12 +1,14 @@
 
-import { Search, Heart, ShoppingCart, User, LogOut, Menu, Package, Ticket, Sparkles, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Car, Gift, Bell } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, LogOut, Menu, Package, Ticket, Sparkles, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Car, Gift } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { categories, categoryIconNames } from "@/data/deals";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import vecsaleLogo from "@/assets/vecsale_Logo__mobile_view.png";
+import vecsaleLogoDesktop from "@/assets/vecsale-logo.png";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; }>> = {
   Ticket, Sparkles, UtensilsCrossed, Dumbbell, ShoppingBag, Plane, Car, Gift
@@ -16,6 +18,90 @@ const getInitials = (email: string) => {
   const parts = email.split("@")[0].split(/[._\-]/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return parts[0].slice(0, 2).toUpperCase();
+};
+
+/* ── Account dropdown (logged-in users only) ── */
+const AccountDropdown = ({
+  initials,
+  onSignOut,
+}: {
+  initials: string;
+  onSignOut: () => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const menuItems = [
+    { to: "/my-stuff", icon: <Package className="w-4 h-4" />, label: "My Stuff" },
+    { to: "/favourites", icon: <Heart className="w-4 h-4" />, label: "Favourites" },
+    { to: "/profile", icon: <User className="w-4 h-4" />, label: "Profile" },
+  ];
+
+  return (
+    <div className="relative" ref={ref}>
+      {/* Avatar button */}
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-bold flex-shrink-0 hover:opacity-90 transition-opacity select-none"
+        aria-label="Account menu"
+      >
+        {initials}
+      </button>
+
+      {/* Dropdown */}
+      {open && (
+        <div
+          className="absolute right-0 mt-3 bg-white rounded-xl shadow-2xl border border-border z-50 overflow-hidden"
+          style={{ minWidth: 200 }}
+        >
+          {/* User label */}
+          <div className="px-4 py-3 border-b border-border">
+            <p className="text-xs text-muted-foreground">Logged in as</p>
+            <p
+              className="text-sm font-bold mt-0.5"
+              style={{ color: "hsl(120 60% 41%)" }}
+            >
+              {initials}
+            </p>
+          </div>
+
+          {/* Nav links */}
+          <nav className="py-1">
+            {menuItems.map(({ to, icon, label }) => (
+              <Link
+                key={label}
+                to={to}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-secondary transition-colors"
+              >
+                <span className="text-muted-foreground">{icon}</span>
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Sign out */}
+          <div className="border-t border-border py-1">
+            <button
+              onClick={() => { setOpen(false); onSignOut(); }}
+              className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/5 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 const Header = () => {
@@ -134,7 +220,7 @@ const Header = () => {
             </Sheet>
 
             <a href="/" className="flex-shrink-0">
-              <img alt="VecSale" className="hidden md:block" style={{ width: 220, height: 40 }} src="/lovable-uploads/ddbe6fa9-d856-4b61-ad3f-45dfefc11ab3.png" />
+              <img alt="VecSale" className="hidden md:block" style={{ height: 40, width: "auto" }} src={vecsaleLogoDesktop} />
               <img
                 alt="VecSale"
                 className="md:hidden"
@@ -181,10 +267,8 @@ const Header = () => {
           </form>
 
           <div className="flex items-center gap-4">
-            {/* Notification bell */}
-            <button className="relative text-black hover:text-black/70 transition-colors">
-              <Bell className="w-6 h-6" />
-            </button>
+            {/* Notifications */}
+            <NotificationDropdown />
 
             {/* Favourites */}
             <Link to="/favourites" className="text-black hover:text-black/70 transition-colors">
@@ -201,14 +285,12 @@ const Header = () => {
               }
             </Link>
 
-            {/* Profile avatar */}
+            {/* Profile avatar / dropdown */}
             {user ? (
-              <Link
-                to="/auth"
-                className="w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-bold flex-shrink-0 hover:opacity-90 transition-opacity"
-              >
-                {initials}
-              </Link>
+              <AccountDropdown
+                initials={initials}
+                onSignOut={handleSignOut}
+              />
             ) : (
               <Link
                 to="/auth"

@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { ArrowLeft, Package, Clock, CheckCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, Package, Clock, CheckCircle, Eye, Trash2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,15 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-const statusConfig = {
-  UNUSED: { label: "Active", icon: Package, color: "text-accent" },
-  USED: { label: "Completed", icon: CheckCircle, color: "text-muted-foreground" },
-  EXPIRED: { label: "Expired", icon: Clock, color: "text-muted-foreground" },
-};
-
 const MyStuff = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: coupons = [], isLoading } = useQuery({
     queryKey: ["my-coupons", user?.id],
@@ -32,26 +27,26 @@ const MyStuff = () => {
     },
   });
 
-  const toggleStatus = useMutation({
-    mutationFn: async ({ id, newStatus }: { id: string; newStatus: string }) => {
-      const { error } = await supabase
-        .from("coupons")
-        .update({ status: newStatus })
-        .eq("id", id);
+  const deleteCoupon = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("coupons").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-coupons"] });
-      toast.success("Coupon status updated");
+      toast.success("Coupon deleted");
     },
-    onError: () => toast.error("Failed to update status"),
+    onError: () => toast.error("Failed to delete coupon"),
   });
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container py-6 max-w-3xl">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+        >
           <ArrowLeft className="w-4 h-4" /> Back to home
         </Link>
 
@@ -62,7 +57,9 @@ const MyStuff = () => {
           <div className="py-20 text-center">
             <Package className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
             <p className="text-lg text-muted-foreground">Sign in to see your purchases.</p>
-            <Link to="/auth" className="text-accent hover:underline text-sm mt-2 inline-block">Sign In</Link>
+            <Link to="/auth" className="text-accent hover:underline text-sm mt-2 inline-block">
+              Sign In
+            </Link>
           </div>
         ) : isLoading ? (
           <div className="py-20 text-center text-muted-foreground">Loading...</div>
@@ -70,38 +67,95 @@ const MyStuff = () => {
           <div className="py-20 text-center">
             <Package className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
             <p className="text-lg text-muted-foreground">No purchases yet.</p>
-            <Link to="/" className="text-accent hover:underline text-sm mt-2 inline-block">Browse deals</Link>
+            <Link to="/" className="text-accent hover:underline text-sm mt-2 inline-block">
+              Browse deals
+            </Link>
           </div>
         ) : (
           <div className="space-y-4">
             {coupons.map((coupon: any) => {
               const deal = coupon.deals;
-              const st = (coupon.status || "UNUSED") as keyof typeof statusConfig;
-              const { label, icon: Icon, color } = statusConfig[st] || statusConfig.UNUSED;
-              const nextStatus = st === "UNUSED" ? "USED" : "UNUSED";
+              const status = (coupon.status || "UNUSED") as "USED" | "UNUSED" | "EXPIRED";
+              const isUsed = status === "USED";
+
               return (
-                <Link key={coupon.id} to={`/voucher/${coupon.id}`} className="block bg-card rounded-xl p-4 flex gap-4 hover:ring-2 hover:ring-accent/30 transition-all" style={{ boxShadow: "var(--shadow-card)" }}>
-                  <img src={deal?.image_url || "/placeholder.svg"} alt={deal?.title} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
+                <div
+                  key={coupon.id}
+                  className="bg-card rounded-xl p-4 flex gap-4 transition-all"
+                  style={{ boxShadow: "var(--shadow-card)" }}
+                >
+                  {/* Deal image */}
+                  <img
+                    src={deal?.image_url || "/placeholder.svg"}
+                    alt={deal?.title}
+                    className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
+                  />
+
+                  {/* Details */}
                   <div className="flex-1 min-w-0">
-                    <span className="text-sm font-semibold text-foreground line-clamp-1">
-                      {deal?.title || "Deal"}
-                    </span>
-                    <p className="text-xs text-muted-foreground mt-0.5">{deal?.businesses?.name} · {deal?.location}</p>
-                    <p className="text-xs text-muted-foreground">Code: {coupon.code}</p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-sm font-bold text-foreground">GH₵{deal?.discounted_price}</span>
-                      <Button
-                        size="sm"
-                        variant={st === "UNUSED" ? "default" : "outline"}
-                        className="h-7 text-xs gap-1"
-                        disabled={toggleStatus.isPending}
-                        onClick={() => toggleStatus.mutate({ id: coupon.id, newStatus: nextStatus })}
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-sm font-semibold text-foreground line-clamp-1">
+                        {deal?.title || "Deal"}
+                      </span>
+
+                      {/* USED / UNUSED badge */}
+                      <span
+                        className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${isUsed
+                            ? "bg-muted text-muted-foreground"
+                            : "bg-accent/10 text-accent"
+                          }`}
                       >
-                        <Icon className="w-3 h-3" /> {label}
-                      </Button>
+                        {isUsed ? (
+                          <CheckCircle className="w-3 h-3" />
+                        ) : (
+                          <Clock className="w-3 h-3" />
+                        )}
+                        {isUsed ? "USED" : "UNUSED"}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {deal?.businesses?.name} · {deal?.location}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Code: {coupon.code}</p>
+
+                    {/* Price + action buttons */}
+                    <div className="flex items-center justify-between mt-3 gap-2">
+                      <span className="text-sm font-bold text-foreground">
+                        GH₵{deal?.discounted_price}
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        {/* View button */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs gap-1"
+                          onClick={() => navigate(`/voucher/${coupon.id}`)}
+                        >
+                          <Eye className="w-3 h-3" />
+                          View
+                        </Button>
+
+                        {/* Delete button */}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-xs gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          disabled={deleteCoupon.isPending}
+                          onClick={() => {
+                            if (confirm("Delete this coupon?")) {
+                              deleteCoupon.mutate(coupon.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Delete
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>

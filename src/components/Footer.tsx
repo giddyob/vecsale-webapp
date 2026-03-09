@@ -1,10 +1,12 @@
+import vecsaleLogoDesktop from "@/assets/vecsale-logo.png";
+
 const Footer = () => {
   return (
     <footer className="bg-nav py-10 mt-8">
       <div className="container">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           <div>
-            <img alt="VecSale" style={{ width: 220, height: 40 }} src="/lovable-uploads/ddbe6fa9-d856-4b61-ad3f-45dfefc11ab3.png" />
+            <img alt="VecSale" style={{ height: 40, width: "auto" }} src={vecsaleLogoDesktop} />
             <p className="mt-3 text-sm text-nav-foreground/60 leading-relaxed">
               Discover the best local deals and experiences in Ghana.
             </p>

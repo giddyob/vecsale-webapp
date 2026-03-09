@@ -56,9 +56,6 @@ const Auth = () => {
 
           <div className="bg-card rounded-xl p-8" style={{ boxShadow: "var(--shadow-card)" }}>
             <div className="text-center mb-6">
-              <span className="text-2xl font-display font-extrabold text-foreground">
-                Vec<span className="text-accent">Sale</span>
-              </span>
               <p className="text-sm text-muted-foreground mt-2">
                 {isLogin ? "Welcome back! Sign in to your account." : "Create your VecSale account."}
               </p>

@@ -20,6 +20,7 @@ const DealDetail = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedSub, setSelectedSub] = useState<string | null>(null);
+  const [activeImage, setActiveImage] = useState<string | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -65,33 +66,46 @@ const DealDetail = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
-            {/* Main image */}
-            <div
-              className="relative rounded-xl overflow-hidden aspect-[4/3] cursor-pointer"
-              onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}
-            >
-              <img src={deal.image} alt={deal.title} className="w-full h-full object-cover" />
-              <span className="absolute top-4 left-4 text-sm font-bold bg-accent text-accent-foreground px-3 py-1 rounded-lg">
-                -{displayDiscount}% OFF
-              </span>
-            </div>
-
-            {/* Gallery thumbnails */}
-            {deal.galleryUrls.length > 0 && (
-              <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
-                {deal.galleryUrls.map((url, i) => (
-                  <button
-                    key={i}
-                    onClick={() => { setLightboxIndex(i + 1); setLightboxOpen(true); }}
-                    className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-border hover:border-accent transition-colors"
+            {/* Main image — clicking opens lightbox */}
+            {(() => {
+              const allImages = [deal.image, ...deal.galleryUrls];
+              const bigSrc = activeImage || deal.image;
+              const bigIndex = allImages.indexOf(bigSrc);
+              return (
+                <>
+                  <div
+                    className="relative rounded-xl overflow-hidden aspect-[4/3] cursor-zoom-in"
+                    onClick={() => {
+                      setLightboxIndex(bigIndex >= 0 ? bigIndex : 0);
+                      setLightboxOpen(true);
+                    }}
                   >
-                    <img src={url} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
+                    <img src={bigSrc} alt={deal.title} className="w-full h-full object-cover transition-all duration-300" />
+                    <span className="absolute top-4 left-4 text-sm font-bold bg-accent text-accent-foreground px-3 py-1 rounded-lg">
+                      -{displayDiscount}% OFF
+                    </span>
+                  </div>
 
-            {/* Lightbox */}
+                  {/* Gallery thumbnails — clicking switches the main image only */}
+                  {allImages.length > 1 && (
+                    <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                      {allImages.map((url, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setActiveImage(url)}
+                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${bigSrc === url ? "border-accent" : "border-border hover:border-accent/60"
+                            }`}
+                        >
+                          <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+
+            {/* Lightbox — opened only by clicking the big image */}
             <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
               <DialogContent className="max-w-4xl p-0 bg-black/95 border-none overflow-hidden">
                 {(() => {
@@ -164,11 +178,10 @@ const DealDetail = () => {
                       <button
                         key={sub.id}
                         onClick={() => setSelectedSub(selectedSub === sub.id ? null : sub.id)}
-                        className={`w-full text-left rounded-xl border-2 p-5 transition-all ${
-                          selectedSub === sub.id
+                        className={`w-full text-left rounded-xl border-2 p-5 transition-all ${selectedSub === sub.id
                             ? "border-accent bg-accent/5 shadow-md"
                             : "border-border bg-card hover:border-accent/40 hover:shadow-sm"
-                        }`}
+                          }`}
                       >
                         <h5 className="text-base font-bold text-foreground leading-snug mb-3">
                           {sub.title}
