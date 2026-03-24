@@ -44,42 +44,47 @@ const DealCard = ({ deal, variant = "default" }: DealCardProps) => {
         </button>
       </div>
 
-      <div className="p-4">
-        <div className="flex items-center gap-2 text-sm mb-2">
-          {deal.businessId ? (
-            <span
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/business/${deal.businessId}`; }}
-              className="font-semibold text-accent uppercase tracking-wide truncate cursor-pointer hover:underline"
-            >
-              {deal.merchant}
-            </span>
-          ) : (
-            <span className="font-semibold text-accent uppercase tracking-wide truncate">
-              {deal.merchant}
-            </span>
-          )}
-          <span className="flex items-center gap-0.5 text-muted-foreground">
-            <MapPin className="w-3.5 h-3.5" />
-            {deal.location}
+      <div className="p-4 flex flex-col gap-1">
+        {/* Business Name */}
+        {deal.businessId ? (
+          <span
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/business/${deal.businessId}`; }}
+            className="text-sm text-muted-foreground truncate cursor-pointer hover:underline"
+          >
+            {deal.merchant}
           </span>
-          <span className="flex items-center gap-0.5 text-foreground ml-auto">
-            <Star className="w-3.5 h-3.5 fill-accent text-accent" />
-            {deal.rating}
+        ) : (
+          <span className="text-sm text-muted-foreground truncate">
+            {deal.merchant}
           </span>
-        </div>
+        )}
 
-        <h3 className="font-display font-semibold text-base text-foreground leading-tight mb-3 line-clamp-2">
+        {/* Deal Title */}
+        <h3 className="font-display font-semibold text-base text-foreground leading-tight line-clamp-2">
           {deal.title}
         </h3>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-bold text-foreground">
-            GH₵{deal.currentPrice}
-          </span>
+        {/* Location */}
+        <span className="flex items-center gap-1 text-sm text-muted-foreground">
+          <MapPin className="w-3.5 h-3.5 shrink-0" />
+          {deal.location}
+        </span>
+
+        {/* Rating */}
+        <span className="flex items-center gap-1 text-sm text-foreground">
+          <Star className="w-3.5 h-3.5 fill-accent text-accent shrink-0" />
+          {deal.rating}
+        </span>
+
+        {/* Prices */}
+        <div className="flex items-center gap-2 mt-2">
           <span className="text-sm text-muted-foreground line-through">
             GH₵{deal.originalPrice}
           </span>
-          <span className="ml-auto text-xs font-bold bg-accent text-accent-foreground px-2 py-0.5 rounded-md">
+          <span className="text-xl font-bold" style={{ color: "#2AA72A" }}>
+            GH₵{deal.currentPrice}
+          </span>
+          <span className="ml-auto text-xs font-bold text-white px-2 py-0.5 rounded-md" style={{ backgroundColor: "#22c55b" }}>
             -{deal.discount}%
           </span>
         </div>

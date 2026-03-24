@@ -84,23 +84,80 @@ const DealDetail = () => {
                     <span className="absolute top-4 left-4 text-sm font-bold bg-accent text-accent-foreground px-3 py-1 rounded-lg">
                       -{displayDiscount}% OFF
                     </span>
+
+                    {/* Sub-deals overlay — top right of image */}
+                    {deal.subDeals.length > 0 && (
+                      <div
+                        className="absolute top-3 right-3 flex flex-col gap-1.5 max-h-[calc(100%-24px)] overflow-y-auto pr-0.5"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {deal.subDeals.map((sub: SubDeal) => {
+                          const subDiscount = Math.round(((sub.original_price - sub.discounted_price) / sub.original_price) * 100);
+                          const isSelected = selectedSub === sub.id;
+                          return (
+                            <button
+                              key={sub.id}
+                              onClick={() => setSelectedSub(selectedSub === sub.id ? null : sub.id)}
+                              className={`text-left rounded-lg border-2 px-3 py-2 backdrop-blur-sm transition-all ${
+                                isSelected
+                                  ? "border-accent bg-accent/80 text-accent-foreground shadow-md"
+                                  : "border-white/40 bg-black/50 text-white hover:border-accent/70 hover:bg-black/70"
+                              }`}
+                            >
+                              <p className="text-xs font-bold leading-tight">{sub.title}</p>
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <span className="text-[11px] line-through opacity-70">GH₵{sub.original_price}</span>
+                                <span className="text-sm font-extrabold">GH₵{sub.discounted_price}</span>
+                                <span className="text-[10px] font-bold bg-white/20 px-1 rounded">-{subDiscount}%</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Gallery thumbnails — clicking switches the main image only */}
+                  {/* Gallery thumbnails */}
                   {allImages.length > 1 && (
                     <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
                       {allImages.map((url, i) => (
                         <button
                           key={i}
                           onClick={() => setActiveImage(url)}
-                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${bigSrc === url ? "border-accent" : "border-border hover:border-accent/60"
-                            }`}
+                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${bigSrc === url ? "border-accent" : "border-border hover:border-accent/60"}`}
                         >
                           <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
                         </button>
                       ))}
                     </div>
                   )}
+
+                  {/* Deal details below gallery */}
+                  <div className="mt-4 flex flex-col gap-1">
+                    {deal.businessId ? (
+                      <Link to={`/business/${deal.businessId}`} className="text-sm text-muted-foreground hover:underline truncate">
+                        {deal.merchant}
+                      </Link>
+                    ) : (
+                      <span className="text-sm text-muted-foreground truncate">{deal.merchant}</span>
+                    )}
+
+                    <h1 className="text-xl font-display font-extrabold text-foreground leading-tight">
+                      {activeSub ? activeSub.title : deal.title}
+                    </h1>
+
+                    <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <MapPin className="w-3.5 h-3.5 shrink-0" />{deal.location}
+                    </span>
+
+                    <span className="flex items-center gap-1 text-sm text-foreground">
+                      <Star className="w-3.5 h-3.5 fill-accent text-accent shrink-0" />{deal.rating}
+                    </span>
+
+                    <p className="text-sm text-muted-foreground leading-relaxed mt-2">
+                      {activeSub?.description || deal.description || `Enjoy an incredible experience with ${deal.merchant}. This exclusive deal gives you ${displayDiscount}% off the regular price.`}
+                    </p>
+                  </div>
                 </>
               );
             })()}
@@ -147,27 +204,6 @@ const DealDetail = () => {
           </div>
 
           <div className="flex flex-col">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-              {deal.businessId ? (
-                <Link to={`/business/${deal.businessId}`} className="font-semibold text-accent uppercase tracking-wide hover:underline">
-                  {deal.merchant}
-                </Link>
-              ) : (
-                <span className="font-semibold text-accent uppercase tracking-wide">{deal.merchant}</span>
-              )}
-              <span className="flex items-center gap-0.5"><MapPin className="w-3 h-3" />{deal.location}</span>
-              <span className="flex items-center gap-0.5 ml-auto"><Star className="w-3 h-3 fill-accent text-accent" />{deal.rating}</span>
-            </div>
-
-            <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground mb-4">
-              {activeSub ? activeSub.title : deal.title}
-            </h1>
-
-            <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-              {activeSub?.description || deal.description || `Enjoy an incredible experience with ${deal.merchant}. This exclusive deal gives you ${displayDiscount}% off the regular price.`}
-            </p>
-
-            {/* Sub-deals */}
             {deal.subDeals.length > 0 && (
               <div className="mb-6">
                 <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Select Option:</p>
@@ -186,9 +222,6 @@ const DealDetail = () => {
                         <h5 className="text-base font-bold text-foreground leading-snug mb-3">
                           {sub.title}
                         </h5>
-                        {sub.description && (
-                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{sub.description}</p>
-                        )}
                         <div className="flex items-center gap-3">
                           <span className="text-muted-foreground line-through text-base">GH₵{sub.original_price}</span>
                           <span className="text-xl font-extrabold text-foreground">GH₵{sub.discounted_price}</span>

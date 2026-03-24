@@ -156,11 +156,11 @@ const Header = () => {
                 <nav className="flex flex-col p-4 gap-1">
                   {user &&
                     <>
-                      <Link to="/my-stuff" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
+                      <Link to="/my-stuff" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-black hover:bg-secondary rounded-md transition-colors">
                         <Package className="w-4 h-4" />
                         My Stuff
                       </Link>
-                      <Link to="/cart" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
+                      <Link to="/cart" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-black hover:bg-secondary rounded-md transition-colors">
                         <ShoppingCart className="w-4 h-4" />
                         Cart
                         {itemCount > 0 &&
@@ -169,11 +169,11 @@ const Header = () => {
                           </span>
                         }
                       </Link>
-                      <Link to="/favourites" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
+                      <Link to="/favourites" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-black hover:bg-secondary rounded-md transition-colors">
                         <Heart className="w-4 h-4" />
                         Favourites
                       </Link>
-                      <Link to="/auth" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
+                      <Link to="/auth" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-black hover:bg-secondary rounded-md transition-colors">
                         <User className="w-4 h-4" />
                         Profile
                       </Link>
@@ -181,26 +181,24 @@ const Header = () => {
                   }
 
                   {!user &&
-                    <Link to="/auth" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
+                    <Link to="/auth" className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-black hover:bg-secondary rounded-md transition-colors">
                       <User className="w-4 h-4" />
                       Sign In
                     </Link>
                   }
 
                   <div className="border-t border-border my-3" />
-                  <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Categories</p>
+                  <p className="px-3 text-xs font-semibold text-black uppercase tracking-wider mb-1">Categories</p>
                   {categories.map((cat) => {
                     const IconComp = iconMap[categoryIconNames[cat]];
                     return (
                       <Link
                         key={cat}
                         to={`/category/${encodeURIComponent(cat)}`}
-                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
-
-                        {IconComp && <IconComp className="w-4 h-4" />}
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-black hover:bg-secondary rounded-md transition-colors">
+                        {IconComp && <IconComp className="w-4 h-4 text-black" />}
                         {cat}
                       </Link>);
-
                   })}
 
                   {user &&
@@ -208,8 +206,7 @@ const Header = () => {
                       <div className="border-t border-border my-3" />
                       <button
                         onClick={handleSignOut}
-                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-left text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-colors">
-
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-left text-black hover:bg-secondary rounded-md transition-colors">
                         <LogOut className="w-4 h-4" />
                         Sign Out
                       </button>

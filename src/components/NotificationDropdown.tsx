@@ -63,7 +63,10 @@ const NotificationDropdown = () => {
             {open && (
                 <div
                     className="absolute right-0 mt-3 bg-white rounded-xl shadow-2xl border border-border z-50 flex flex-col"
-                    style={{ width: 360, maxHeight: 520 }}
+                    style={{
+                        width: "min(360px, calc(100vw - 24px))",
+                        maxHeight: 520,
+                    }}
                 >
                     {/* Header */}
                     <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
